@@ -353,41 +353,55 @@ var CorporateInfo = {
   t_decode: t_decode$3
 };
 
+function fetchAllData(param) {
+  return $$Promise.mapOk($$Promise.flatMapOk($$Promise.flatMapOk(DummyRepo.fetchData(undefined), (function (json) {
+                        var match = resolveResult(t_decode(json), "data");
+                        var data = match.data;
+                        return $$Promise.mapOk(DummyRepo.fetchCountries(data), (function (json) {
+                                      return [
+                                              json,
+                                              data
+                                            ];
+                                    }));
+                      })), (function (param) {
+                    var data = param[1];
+                    var match = resolveResult(t_decode$1(param[0]), "countries");
+                    var countries = match.countries;
+                    var countryIds = Belt_List.map(countries, (function (param) {
+                            return param.id;
+                          }));
+                    return $$Promise.mapOk(DummyRepo.fetchPlaces(countryIds), (function (json) {
+                                  return [
+                                          json,
+                                          data,
+                                          countries
+                                        ];
+                                }));
+                  })), (function (param) {
+                var match = resolveResult(t_decode$2(param[0]), "places");
+                return [
+                        param[1],
+                        param[2],
+                        match.places
+                      ];
+              }));
+}
+
+function fetchDetails(param) {
+  return $$Promise.mapOk(DummyRepo.fetchCorporateInfo(undefined), (function (json) {
+                return resolveResult(t_decode$3(json), "company_details").company_details;
+              }));
+}
+
 function execute(param) {
-  return $$Promise.Js.get(DummyRepo.fetchData(undefined), (function (json) {
-                if (json.TAG === /* Ok */0) {
-                  var match = resolveResult(t_decode(json._0), "data");
-                  var data = match.data;
-                  return $$Promise.Js.get(DummyRepo.fetchCountries(data), (function (json) {
-                                if (json.TAG === /* Ok */0) {
-                                  var match = resolveResult(t_decode$1(json._0), "countries");
-                                  var countries = match.countries;
-                                  var countryIds = Belt_List.map(countries, (function (param) {
-                                          return param.id;
-                                        }));
-                                  return $$Promise.Js.get(DummyRepo.fetchPlaces(countryIds), (function (json) {
-                                                if (json.TAG === /* Ok */0) {
-                                                  var match = resolveResult(t_decode$2(json._0), "places");
-                                                  var places = match.places;
-                                                  return $$Promise.Js.get(DummyRepo.fetchCorporateInfo(undefined), (function (json) {
-                                                                if (json.TAG === /* Ok */0) {
-                                                                  var match = resolveResult(t_decode$3(json._0), "company_details");
-                                                                  console.log(data, countries, places, match.company_details);
-                                                                  return ;
-                                                                }
-                                                                console.log(json._0);
-                                                                
-                                                              }));
-                                                }
-                                                console.log(json._0);
-                                                
-                                              }));
-                                }
-                                console.log(json._0);
-                                
-                              }));
-                }
-                console.log(json._0);
+  return $$Promise.Js.get($$Promise.mapError($$Promise.mapOk($$Promise.allOk2(fetchAllData(undefined), fetchDetails(undefined)), (function (param) {
+                        var match = param[0];
+                        console.log(match[0], match[1], match[2], param[1]);
+                        
+                      })), (function (prim) {
+                    console.log(prim);
+                    
+                  })), (function (prim) {
                 
               }));
 }
@@ -399,5 +413,7 @@ exports.Data = Data;
 exports.Countries = Countries;
 exports.Places = Places;
 exports.CorporateInfo = CorporateInfo;
+exports.fetchAllData = fetchAllData;
+exports.fetchDetails = fetchDetails;
 exports.execute = execute;
 /*  Not a pure module */
