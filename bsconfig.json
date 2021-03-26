@@ -18,5 +18,5 @@
     "error" : "+101"
   },
   "ppx-flags": [ "decco/ppx" ],
-  "refmt": 3
+  "refmt": "./node_modules/.bin/refmt"
 }
